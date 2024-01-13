@@ -32,7 +32,7 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
 
-    modImplementation "com.github.quiltservertools:Ledger:1.2.8"
+    modImplementation "com.github.quiltservertools:Ledger:1.2.9"
     modImplementation 'me.lucko:fabric-permissions-api:0.2-SNAPSHOT' // shurg
 }
 
