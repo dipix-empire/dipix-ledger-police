@@ -4,9 +4,9 @@ import com.github.quiltservertools.ledger.api.CommandExtension
 import com.github.quiltservertools.ledger.api.ExtensionManager
 import com.github.quiltservertools.ledger.commands.BuildableCommand
 import com.github.quiltservertools.ledger.commands.CommandConsts
-import com.github.quiltservertools.ledger.utility.Context
-import com.github.quiltservertools.ledger.utility.LiteralNode
 import com.github.quiltservertools.libs.com.uchuhimo.konf.ConfigSpec
+import com.mojang.brigadier.context.CommandContext
+import com.mojang.brigadier.tree.LiteralCommandNode
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
@@ -16,6 +16,7 @@ import net.minecraft.command.argument.BlockPosArgumentType
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.server.command.CommandManager.argument
 import net.minecraft.server.command.CommandManager.literal
+import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
@@ -85,7 +86,7 @@ object DipixLedgerPoliceConfig : ConfigSpec("dipix-police") {
 }
 
 object DipixLedgerPoliceSubcommand : BuildableCommand {
-    override fun build(): LiteralNode =
+    override fun build(): LiteralCommandNode<ServerCommandSource> =
         literal("police")
             .requires(Permissions.require("ledger.commands.police", CommandConsts.PERMISSION_LEVEL))
             .executes { togglePolice(it) }
@@ -103,7 +104,7 @@ object DipixLedgerPoliceSubcommand : BuildableCommand {
             )
             .build()
 
-    private fun togglePolice(context: Context): Int {
+    private fun togglePolice(context: CommandContext<ServerCommandSource>): Int {
         val source = context.source
         val player = source.playerOrThrow
 
@@ -114,7 +115,7 @@ object DipixLedgerPoliceSubcommand : BuildableCommand {
         }
     }
 
-    private fun policeBlock(context: Context, pos: BlockPos): Int {
+    private fun policeBlock(context: CommandContext<ServerCommandSource>, pos: BlockPos): Int {
         val source = context.source
 
         source.policeBlock(pos)
