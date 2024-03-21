@@ -8,10 +8,7 @@ import com.github.quiltservertools.ledger.commands.BuildableCommand
 import com.github.quiltservertools.ledger.commands.CommandConsts
 import com.github.quiltservertools.ledger.config.config
 import com.github.quiltservertools.ledger.database.DatabaseManager
-import com.github.quiltservertools.ledger.utility.Context
-import com.github.quiltservertools.ledger.utility.LiteralNode
-import com.github.quiltservertools.ledger.utility.MessageUtils
-import com.github.quiltservertools.ledger.utility.TextColorPallet
+import com.github.quiltservertools.ledger.utility.*
 import com.github.quiltservertools.libs.com.uchuhimo.konf.ConfigSpec
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.tree.LiteralCommandNode
@@ -31,8 +28,10 @@ import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.Identifier
 import net.minecraft.util.hit.BlockHitResult
+import net.minecraft.util.math.BlockBox
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
+import net.minecraft.util.math.Vec3i
 import net.minecraft.world.World
 import java.time.Instant
 import kotlin.math.max
@@ -161,10 +160,18 @@ object DiPixSearchCommand : BuildableCommand {
         }
 
         Ledger.launch {
+            val defrange = config[DipixLedgerPoliceConfig.searchMaxRange]
+            val defbounds = BlockBox.create(
+                BlockPos.ofFloored(source.position).subtract(Vec3i(defrange, defrange, defrange)),
+                BlockPos.ofFloored(source.position).add(Vec3i(defrange, defrange, defrange))
+            )
+            val world = Negatable.allow(source.world.registryKey.value)
             val params = params.copy(
                 after = Instant.ofEpochMilli(max((Instant.now() - config[DipixLedgerPoliceConfig.fingerprintMaxAge].toDuration(
                     DurationUnit.SECONDS
-                ).toJavaDuration()).toEpochMilli(), params.after?.toEpochMilli() ?: 0))
+                ).toJavaDuration()).toEpochMilli(), params.after?.toEpochMilli() ?: 0)),
+                worlds = mutableSetOf(world),
+                bounds = params.bounds ?: defbounds
             )
             Ledger.searchCache[source.name] = params
 
